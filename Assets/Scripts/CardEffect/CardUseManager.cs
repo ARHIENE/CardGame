@@ -1,13 +1,15 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class CardUseManager : MonoBehaviour
 {
     public Transform handPanel;
-    public HandManager handManager; // µå·Î¿ì ±â´ÉÀÌ µé¾îÀÖ´Â ½ºÅ©¸³Æ®
+    public HandManager handManager;
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0)) // ÁÂÅ¬¸¯ °¨Áö
+        if (Input.GetMouseButtonDown(0))
         {
             UseAllSelectedCards();
         }
@@ -15,22 +17,103 @@ public class CardUseManager : MonoBehaviour
 
     void UseAllSelectedCards()
     {
-        int usedCount = 0;
+        List<CardHandler> usedCards = new List<CardHandler>();
 
         for (int i = handPanel.childCount - 1; i >= 0; i--)
         {
-            Transform card = handPanel.GetChild(i);
-            CardHandler handler = card.GetComponent<CardHandler>();
+            var card = handPanel.GetChild(i);
+            var handler = card.GetComponent<CardHandler>();
             if (handler != null && handler.isSelected)
             {
-                handler.UseCard();
-                usedCount++;
+                usedCards.Add(handler);
             }
         }
 
-        if (usedCount > 0)
+        int count = usedCards.Count;
+
+        // ÆÇÁ¤: 2ÀåÀÏ ¶§¸¸ Á·º¸ ºñ±³
+        if (count == 2)
         {
-            handManager.DrawCards(usedCount);
+            var c1 = usedCards[0];
+            var c2 = usedCards[1];
+
+            int m1 = c1.month;
+            int m2 = c2.month;
+            var set = new HashSet<int> { m1, m2 };
+
+            // »ïÆÈ±¤¶¯
+            if ((m1 == 3 && m2 == 8 || m1 == 8 && m2 == 3) &&
+                c1.type == CardType.±¤ && c2.type == CardType.±¤)
+            {
+                Debug.Log("»ïÆÈ±¤¶¯!");
+            }
+            // ±¤¶¯
+            else if (c1.type == CardType.±¤ && c2.type == CardType.±¤ &&
+                    new[] { 1, 3, 8 }.Contains(m1) && new[] { 1, 3, 8 }.Contains(m2))
+            {
+                Debug.Log("±¤¶¯!");
+            }
+            // ¶¯
+            else if (m1 == m2)
+            {
+                Debug.Log($"{m1}¶¯!");
+            }
+            // Æ¯¼ö Á¶ÇÕ
+            else if (set.SetEquals(new[] { 1, 2 })) Debug.Log("¾Ë¸®!");
+            else if (set.SetEquals(new[] { 1, 4 })) Debug.Log("µ¶»ç!");
+            else if (set.SetEquals(new[] { 1, 9 })) Debug.Log("±¸»æ!");
+            else if (set.SetEquals(new[] { 1, 10 })) Debug.Log("Àå»æ!");
+            else if (set.SetEquals(new[] { 4, 10 })) Debug.Log("Àå»ç!");
+            else if (set.SetEquals(new[] { 4, 6 })) Debug.Log("¼¼·ú!");
+            else if (set.SetEquals(new[] { 2, 8 })) Debug.Log("¸ÁÅë!"); // ¸ÁÅë Æ¯Á¶ÇÕ ¿ì¼±
+            else
+            {
+                // ²ı/°©¿À/¸ÁÅë
+                int g1 = c1.ggutValue;
+                int g2 = c2.ggutValue;
+                int sum = (g1 + g2) % 10;
+
+                if (sum == 9) Debug.Log("°©¿À!");
+                else if (sum == 0) Debug.Log("¸ÁÅë!");
+                else Debug.Log($"{sum}²ı");
+            }
         }
+        else if (count == 3)
+        {
+            if (usedCards.All(c => c.month == usedCards[0].month))
+            {
+                Debug.Log("ÆøÅº!");
+            }
+            else
+            {
+                Debug.Log("°°Àº Ä«µå¸¸ »ç¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù.");
+                return;
+            }
+        }
+        else if (count == 4)
+        {
+            if (usedCards.All(c => c.month == usedCards[0].month))
+            {
+                Debug.Log("ÃÑÅë!");
+            }
+            else
+            {
+                Debug.Log("°°Àº Ä«µå¸¸ »ç¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù.");
+                return;
+            }
+        }
+        else
+        {
+            Debug.Log("2~4Àå¸¸ »ç¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù.");
+            return;
+        }
+
+        // Ä«µå »ç¿ë
+        foreach (var handler in usedCards)
+        {
+            handler.UseCard();
+        }
+
+        handManager.DrawCards(count);
     }
 }
