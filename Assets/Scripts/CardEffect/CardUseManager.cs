@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -31,7 +31,12 @@ public class CardUseManager : MonoBehaviour
 
         int count = usedCards.Count;
 
-        // ÆÇÁ¤: 2ÀåÀÏ ¶§¸¸ Á·º¸ ºñ±³
+        if (count < 2 || count > 4)
+        {
+            Debug.Log("2~4ì¥ë§Œ ì‚¬ìš©í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
+            return;
+        }
+
         if (count == 2)
         {
             var c1 = usedCards[0];
@@ -41,52 +46,53 @@ public class CardUseManager : MonoBehaviour
             int m2 = c2.month;
             var set = new HashSet<int> { m1, m2 };
 
-            // »ïÆÈ±¤¶¯
+            Debug.Log($"ì¹´ë“œ1: {m1}ì›”, ì¹´ë“œ2: {m2}ì›”");
+
+            // ì‚¼íŒ”ê´‘ë•¡
             if ((m1 == 3 && m2 == 8 || m1 == 8 && m2 == 3) &&
-                c1.type == CardType.±¤ && c2.type == CardType.±¤)
+                c1.type == CardType.ê´‘ && c2.type == CardType.ê´‘)
             {
-                Debug.Log("»ïÆÈ±¤¶¯!");
+                Debug.Log("ì‚¼íŒ”ê´‘ë•¡");
             }
-            // ±¤¶¯
-            else if (c1.type == CardType.±¤ && c2.type == CardType.±¤ &&
-                    new[] { 1, 3, 8 }.Contains(m1) && new[] { 1, 3, 8 }.Contains(m2))
+            // ê´‘ë•¡
+            else if (c1.type == CardType.ê´‘ && c2.type == CardType.ê´‘ &&
+                     new[] { 1, 3, 8 }.Contains(m1) && new[] { 1, 3, 8 }.Contains(m2))
             {
-                Debug.Log("±¤¶¯!");
+                Debug.Log("ê´‘ë•¡");
             }
-            // ¶¯
+            // ë•¡
             else if (m1 == m2)
             {
-                Debug.Log($"{m1}¶¯!");
+                Debug.Log($"{m1}ë•¡");
             }
-            // Æ¯¼ö Á¶ÇÕ
-            else if (set.SetEquals(new[] { 1, 2 })) Debug.Log("¾Ë¸®!");
-            else if (set.SetEquals(new[] { 1, 4 })) Debug.Log("µ¶»ç!");
-            else if (set.SetEquals(new[] { 1, 9 })) Debug.Log("±¸»æ!");
-            else if (set.SetEquals(new[] { 1, 10 })) Debug.Log("Àå»æ!");
-            else if (set.SetEquals(new[] { 4, 10 })) Debug.Log("Àå»ç!");
-            else if (set.SetEquals(new[] { 4, 6 })) Debug.Log("¼¼·ú!");
-            else if (set.SetEquals(new[] { 2, 8 })) Debug.Log("¸ÁÅë!"); // ¸ÁÅë Æ¯Á¶ÇÕ ¿ì¼±
+            // íŠ¹ìˆ˜ ì¡°í•©
+            else if (set.SetEquals(new[] { 1, 2 })) Debug.Log("ì•Œë¦¬");
+            else if (set.SetEquals(new[] { 1, 4 })) Debug.Log("ë…ì‚¬");
+            else if (set.SetEquals(new[] { 1, 9 })) Debug.Log("êµ¬ì‚¥");
+            else if (set.SetEquals(new[] { 1, 10 })) Debug.Log("ì¥ì‚¥");
+            else if (set.SetEquals(new[] { 4, 10 })) Debug.Log("ì¥ì‚¬");
+            else if (set.SetEquals(new[] { 4, 6 })) Debug.Log("ì„¸ë¥™");
+            else if (set.SetEquals(new[] { 2, 8 })) Debug.Log("ë§í†µ"); // íŠ¹ì¡°í•© ë§í†µ
             else
             {
-                // ²ı/°©¿À/¸ÁÅë
-                int g1 = c1.ggutValue;
-                int g2 = c2.ggutValue;
-                int sum = (g1 + g2) % 10;
+                // ë— ê³„ì‚°ì€ month ê¸°ë°˜ìœ¼ë¡œ ì²˜ë¦¬
+                int sum = (m1 + m2) % 10;
+                Debug.Log($"ë— ê³„ì‚°: {m1} + {m2} = {(m1 + m2)} â†’ {sum}ë—");
 
-                if (sum == 9) Debug.Log("°©¿À!");
-                else if (sum == 0) Debug.Log("¸ÁÅë!");
-                else Debug.Log($"{sum}²ı");
+                if (sum == 9) Debug.Log("ê°‘ì˜¤");
+                else if (sum == 0) Debug.Log("ë§í†µ");
+                else Debug.Log($"{sum}ë—");
             }
         }
         else if (count == 3)
         {
             if (usedCards.All(c => c.month == usedCards[0].month))
             {
-                Debug.Log("ÆøÅº!");
+                Debug.Log("í­íƒ„");
             }
             else
             {
-                Debug.Log("°°Àº Ä«µå¸¸ »ç¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù.");
+                Debug.Log("ê°™ì€ ì¹´ë“œë§Œ ì‚¬ìš©í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
                 return;
             }
         }
@@ -94,21 +100,15 @@ public class CardUseManager : MonoBehaviour
         {
             if (usedCards.All(c => c.month == usedCards[0].month))
             {
-                Debug.Log("ÃÑÅë!");
+                Debug.Log("ì´í†µ");
             }
             else
             {
-                Debug.Log("°°Àº Ä«µå¸¸ »ç¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù.");
+                Debug.Log("ê°™ì€ ì¹´ë“œë§Œ ì‚¬ìš©í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
                 return;
             }
         }
-        else
-        {
-            Debug.Log("2~4Àå¸¸ »ç¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù.");
-            return;
-        }
 
-        // Ä«µå »ç¿ë
         foreach (var handler in usedCards)
         {
             handler.UseCard();
